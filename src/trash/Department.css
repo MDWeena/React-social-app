@@ -1,0 +1,44 @@
+body{
+    display: flex;
+    justify-content: center;
+}
+
+.students{
+    /* background-color: red; */
+    max-width: 400px;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, .5);
+    
+}
+
+.students h2{
+    padding: 15px 10px;
+}
+.hold{
+    height: 40vh;
+    overflow-y: scroll;
+}
+.student{
+    border: 1px solid whitesmoke;
+    width: 70%;
+}
+.student__details{
+    list-style-type: none;
+    padding: 10px;
+}
+
+.student__details > li{
+    font-weight: bold;
+    color: teal;
+}
+
+.student__details > span{
+    color: green;
+    display: block;
+}
+
+.student__details > small{
+    color: red;
+    font-style: italic;
+}
