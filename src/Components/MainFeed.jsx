@@ -21,18 +21,16 @@ const MainFeed = () => {
     let res = await axios.get("http://localhost:5000/api/v1/post", {
       headers: {
         'content-type': 'application/json',
-        'access-token': user? user.token : ""
+        'access-token': user.token
       }
     });
 
     setPosts(res.data.allPosts);
-    console.log(res.data)
   }
 
-
-  useEffect(() => {
-    getPosts();
-  }, [])
+  // useEffect(() => {
+  //   // getPosts();
+  // }, [posts])
 
   return (
     <Container className={classes.container}>

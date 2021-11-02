@@ -1,11 +1,12 @@
 import React, {useContext, useRef} from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import './register.css';
 import { makeStyles } from '@material-ui/core/styles';
 import {TextField, Button} from '@material-ui/core';
 import toast from 'react-hot-toast';
 import {AuthContext} from '../../../context/AuthContext';
 import {loginCall} from '../../../apiCalls'
+import { useHistory } from 'react-router';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +37,7 @@ const Login = () => {
   const classes = useStyles();
   const userInput = useRef();
   const password = useRef();
+  const history = useHistory();
   const { isFetching, dispatch } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
@@ -49,7 +51,7 @@ const Login = () => {
     }
 
     loginCall(user, dispatch);
-
+    history.push("/");
   }
 
   return (
