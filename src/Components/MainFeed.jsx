@@ -1,27 +1,49 @@
-import React from 'react'
-import { Container, makeStyles} from '@material-ui/core'
+import React, {useContext, useState, useEffect} from 'react';
+import { Container, makeStyles } from '@material-ui/core';
 import Post from './Post';
+import Share from './share/Share';
+import axios from 'axios';
+import {AuthContext} from '../context/AuthContext';
+
 
 const useStyles = makeStyles(theme => ({
-    container: {
-        paddingTop: theme.spacing(10)
-    }
+  container: {
+    paddingTop: theme.spacing(10)
+  }
 }))
 
 const MainFeed = () => {
-    const classes = useStyles();
-    return (
-        <div>
-            <Container className={classes.container}>
-                <Post />
-                <Post />
-                <Post />
-                <Post />
-                <Post />
-                <Post />
-            </Container>
-        </div>
-    )
+  const classes = useStyles();
+  const [posts, setPosts] = useState([]);
+  const {user} = useContext(AuthContext);
+
+  const getPosts = async () => {
+    let res = await axios.get("http://localhost:5000/api/v1/post", {
+      headers: {
+        'content-type': 'application/json',
+        'access-token': user? user.token : ""
+      }
+    });
+
+    setPosts(res.data.allPosts);
+    console.log(res.data)
+  }
+
+
+  useEffect(() => {
+    getPosts();
+  }, [])
+
+  return (
+    <Container className={classes.container}>
+      <Share />
+      {
+        posts.map(post => (
+          <Post key={post._id} data={post} />
+        ))
+      }
+    </Container>
+  )
 }
 
 export default MainFeed

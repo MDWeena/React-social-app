@@ -1,43 +1,53 @@
-import { Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import Navbar from './Components/Navbar';
-import Left from './Components/Left'
-import MainFeed from './Components/MainFeed';
-import Right from './Components/Right';
-import Add from './Components/Add';
-import AddIcon from '@material-ui/icons/Add';
-import ForumRoundedIcon from '@material-ui/icons/ForumRounded';
-import PeopleOutlineRoundedIcon from '@material-ui/icons/PeopleOutlineRounded';
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Login from './Components/pages/auth/Login';
+import Register from './Components/pages/auth/Register';
+import Timeline from "./Components/pages/timeline/Timeline";
+import { Toaster } from 'react-hot-toast';
+import VerifyUser from "./Components/pages/auth/VerifyUser";
+import Profile from "./Components/pages/profile/Profile";
+import {useContext} from 'react'
+import {AuthContext} from './context/AuthContext'
 
-
-const  useStyles = makeStyles(theme =>({
-  right: {
-    [theme.breakpoints.down("sm")]:{
-      display: 'none'
-    }
-  }
-}));
-
+ 
 function App() {
-  const classes = useStyles();
+ const {user} = useContext(AuthContext)
   return (
-  <div>
-    <Navbar />
-    <Grid container>
-      <Grid className={classes.left} item sm={2} xs={2}>
-        <Left />
-      </Grid>
-      <Grid className={classes.center} item sm={7} xs={10}>
-        <MainFeed />
-      </Grid>
-      <Grid className={classes.right} item sm={3}>
-        <Right />
-      </Grid>
-    </Grid>
-    <Add Icon={AddIcon} iconName='post' color='secondary' />
-    <Add Icon={ForumRoundedIcon} iconName='chat' color='primary' />
-    <Add Icon={PeopleOutlineRoundedIcon} iconName='friends' color='warning' />
-  </div>
+    <>
+      <Router>
+        <Switch>
+          <Route exact path="/">
+            {
+              user ?
+              <Timeline />
+              : <Login />
+            }
+          </Route>
+          <Route path="/login" component={Login}></Route>
+          <Route path="/verify-user" component={VerifyUser}></Route>
+          <Route path="/register" component={Register}></Route>
+          <Route path="/profile" component={Profile}></Route>
+        </Switch>
+      </Router>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            color: 'white'
+          },
+          success: {
+            style: {
+              background: 'green',
+            },
+          },
+          error: {
+            style: {
+              background: 'red',
+            },
+          },
+        }}
+      />
+    </>
   );
 }
 

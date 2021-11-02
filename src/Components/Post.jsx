@@ -1,21 +1,33 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import {Card, CardHeader, CardMedia, CardContent, CardActions, Collapse, Avatar, IconButton} from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
-import { red } from '@material-ui/core/colors';
+import {
+  Card, 
+  CardHeader, 
+  CardMedia, 
+  CardContent,
+  CardActions, 
+  Collapse, 
+  Avatar, 
+  IconButton, 
+  Typography
+} from '@material-ui/core';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { Comment } from '@material-ui/icons';
+import { format } from 'timeago.js';
+import axios, { Axios } from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        marginBottom: theme.spacing(4)
-    },
-    media: {
-    paddingTop: '50%', // 16:9
+  root: {
+    marginBottom: theme.spacing(4)
+  },
+  media: {
+    // height: 250,
+    // paddingTop: '56.25%', // 16:9
   },
   expand: {
     transform: 'rotate(0deg)',
@@ -26,50 +38,100 @@ const useStyles = makeStyles((theme) => ({
   },
   expandOpen: {
     transform: 'rotate(180deg)',
-  },
-  avatar: {
-    backgroundColor: red[500],
-  },
+  }
 }));
 
-export default function RecipeReviewCard() {
+export default function RecipeReviewCard({data}) {
+  const {user} = useContext(AuthContext)
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
+  const [likes, setLikes] = useState(data.likes.length)
+  const [userLiked, setUserLiked] = useState(false);
+
+  useEffect(() => {
+    setUserLiked(data.likes.includes(user.user._id))
+  },[user.user._id, data.likes])
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
+  const likePost = async() => {
+    try{
+      let likeRes = await axios.put(`http://localhost:5000/api/v1/post/${data._id}/like`,{},
+      {
+        headers: {
+          'content-type': 'application/json',
+          'access-token': user.token
+        }
+      });
+      
+      if (likeRes.data.success){
+        setLikes(userLiked ? likes - 1 : likes + 1)
+        setUserLiked(!userLiked)
+      }
+      console.log(likeRes);
+    }catch (e){
+      console.log(e);
+    }
+  }
   return (
     <Card className={classes.root}>
       <CardHeader
         avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            R
-          </Avatar>
+          <Avatar 
+          className={classes.avatar} 
+          src={
+            data.user ?
+            data.user.avatar
+            :
+            ''
+          }
+          />
         }
         action={
           <IconButton aria-label="settings">
             <MoreVertIcon />
           </IconButton>
         }
-        title="Shrimp and Chorizo Paella"
-        subheader="September 14, 2016"
+        title={data.user ? data.user.username : ''}
+        subheader={format(data.createdAt)}
       />
-      <CardMedia
-        className={classes.media}
-        image="https://png.pngtree.com/thumb_back/fh260/background/20200714/pngtree-modern-double-color-futuristic-neon-background-image_351866.jpg"
-        title="Paella dish"
-      />
+      {
+        data.mediaType === 'image' ? (
+          <CardMedia
+            className={classes.media}
+            src={
+              data.media
+            }
+            title="Post"
+            component="img"
+          />
+        ) : 
+        data.mediaType === 'video' ?
+          <CardMedia
+            className={classes.media}
+            src={
+              data.media
+            }
+            title="Post"
+            component="video"
+            controls
+          /> : null
+      }
+
+      
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
-          This impressive paella is a perfect party dish and a fun meal to cook together with your
-          guests. Add 1 cup of frozen peas along with the mussels, if you like.
+          {data.description}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
+        <IconButton onClick={likePost} aria-label="add to favorites">
+          <FavoriteIcon color={userLiked ? "secondary" : ""}/>
+          {
+            likes > 0 && <span style={{fontSize: '14px'}}>{likes}</span>
+          }
         </IconButton>
         <IconButton aria-label="share">
           <ShareIcon />
